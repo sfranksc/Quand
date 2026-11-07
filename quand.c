@@ -120,7 +120,6 @@ int	main(void)
 {
 	enable_raw_mode();
 
-	//create an infinite loop 
 	while (1)
 	{
 		editor_refresh_screen();
