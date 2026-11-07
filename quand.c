@@ -14,6 +14,11 @@
 	ATTR	= attributes
 */
 
+/*** defines ***/
+
+// creates a macro for the control key.
+#define CTRL_KEY(k) ((k) & 0x1f)
+
 //this functions will mode into an utility file soon.
 int iscntrl(int c)
 {
@@ -92,7 +97,7 @@ int	main(void)
 		else
 			printf("%d ('%c')\r\n", c, c);
 		//break out of the loop when q is pressed
-		if (c == 'q')
+		if (c == CTRL_KEY('q'))
 			break;
 	}
 }
