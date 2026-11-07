@@ -94,7 +94,10 @@ char	editor_read_key(void)
 
 void	editor_refresh_screen(void)
 {
+	// clear the entire screen
 	write(STDOUT_FILENO, "\x1b[2J", 4);
+	// position the cursor at the top left corner
+	write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
 /*** input ***/
