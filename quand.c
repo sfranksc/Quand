@@ -49,7 +49,7 @@ void	disable_raw_mode(void)
 {
 	//check for error after calling the function
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
-		die("(38) tcsetattr");
+		die("(52) tcsetattr");
 }
 
 //set mode to raw for the STDI
@@ -57,7 +57,7 @@ void	enable_raw_mode(void)
 {
 	//write the ATTR of the STDI in orig_termios
 	if (tcgetattr(STDIN_FILENO, &orig_termios) == -1)
-		die("(46) tcgetattr");
+		die("(60) tcgetattr");
 	atexit(disable_raw_mode);
 
 	//create a new struct for our raw mode that will first contain the original ATTR
@@ -73,7 +73,45 @@ void	enable_raw_mode(void)
 
 	//apply the changes
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
-		die("(60) tcsetattr");
+		die("(76) tcsetattr");
+}
+
+// read character wrote in the STDI
+char	editor_read_key(void)
+{
+	int	nread;
+	char	c;
+
+	// checks for error while reading
+	while ((nread = read(STDIN_FILENO, &c, 1)) != 1)
+	{
+		if (nread == -1 && errno != EAGAIN)
+			die("(86) read");
+	}
+	// returns read character
+	return (c);
+}
+
+void	editor_refresh_screen(void)
+{
+	write(STDOUT_FILENO, "\x1b[2J", 4);
+}
+
+/*** input ***/
+
+// process character received from editor_read_key
+void	editor_process_keypress(void)
+{
+	char	c;
+
+	// set the char at the return of editor_read_key
+	c = editor_read_key();
+	switch (c) 
+	{
+		case CTRL_KEY('q'):
+			exit(0);
+			break;
+	}
 }
 
 /*** init ***/
@@ -82,22 +120,10 @@ int	main(void)
 {
 	enable_raw_mode();
 
-	//BUFR
-	char	c;
 	//create an infinite loop 
 	while (1)
 	{
-		c = '\0';
-		//read from STDI into BUFR c and check for error
-		//supports Cygwin
-		if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
-			die("(74) read");
-		if (iscntrl(c))
-			printf("%d\r\n", c);
-		else
-			printf("%d ('%c')\r\n", c, c);
-		//break out of the loop when q is pressed
-		if (c == CTRL_KEY('q'))
-			break;
+		editor_refresh_screen();
+		editor_process_keypress();
 	}
 }
