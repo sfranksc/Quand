@@ -1,14 +1,21 @@
-SRC = quand.c
-OBJ = $(SRC:%.c=%.o)
+SRC = $(wildcard src/*.c)
+HEADER = $(wildcard include/quand.h)
+OBJ = $(patsubst src/%.c,build/%.o,$(SRC))
 
-NAME = Quand
+NAME = bin/Quand
 
-C_FLAGS = -Wall -Wextra -Werror -pedantic -std=c99
+C_FLAGS = -Wall -Wextra -Werror -pedantic -std=c99 -Iinclude
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(OBJ) -o $(NAME) $(C_FLAGS)
+	$(CC) $(OBJ) -o $(NAME)
+
+build/%.o: src/%.c $(HEADER)
+	$(CC) $(C_FLAGS) -c $< -o $@
+
+run: $(NAME)
+	./$(NAME)
 
 clean:
 	rm -f $(OBJ)
